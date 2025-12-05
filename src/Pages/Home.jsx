@@ -2,6 +2,8 @@ import React from 'react'
 import Hero from '../Components/Hero'
 import TrustedBrand from '../Components/TrustedBrand'
 import FeaturedEvents from '../Components/FeaturedEvents'
+import Infor from '../Components/Infor'
+import NewsLetter from '../Components/NewsLetter'
 
 
 const Home = () => {
@@ -11,6 +13,8 @@ const Home = () => {
 <Hero />
 <TrustedBrand />
 <FeaturedEvents />
+<Infor/>
+<NewsLetter/>
 
 
     </div>

@@ -1,7 +1,7 @@
-import React from 'react';
-import { eventsDummyData } from '../assets/assets';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import React from "react";
+import { eventsDummyData } from "../assets/assets";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 const FeaturedEvents = () => {
   return (
@@ -9,10 +9,13 @@ const FeaturedEvents = () => {
       <div className="mx-4 sm:mx-[10%]">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold pt-7 sm:pt-10 text-black">Our Featured Rooms</h1>
+          <h1 className="text-3xl font-bold pt-7 sm:pt-10 text-black">
+            Our Featured Events
+          </h1>
           <p className="text-base text-gray-700 max-w-xl mx-auto mt-2">
-            Explore our top rated rooms carefully selected for comfort, style, and convenience.
-            Book your stay with just a few clicks.
+            Explore our top-rated events, carefully selected to give you the
+            best experience. Secure your tickets quickly and easily with just a
+            few clicks.
           </p>
         </div>
 
@@ -27,7 +30,9 @@ const FeaturedEvents = () => {
                   className="w-full h-60 object-cover"
                 />
                 <div className="p-4">
-                  <h2 className="text-xl font-semibold text-black">{event.name}</h2>
+                  <h2 className="text-xl font-semibold text-black">
+                    {event.name}
+                  </h2>
                   <p className="text-sm text-gray-600">{event.address}</p>
                   <p className="text-md pt-2 text-black">{event.eventType}</p>
 
@@ -35,9 +40,7 @@ const FeaturedEvents = () => {
                     <p className="text-gray-800">₵{event.ticket} / night</p>
 
                     <Link to={`/events/${event._id}`}>
-                      <button
-                        className="bg-white cursor-pointer text-black font-semibold border border-black px-4 py-2 hover:bg-gray-100 transition"
-                      >
+                      <button className="bg-red-500 cursor-pointer rounded-lg text-white font-semibold px-4 py-2 hover:bg-gray-100 transition">
                         Book Now
                       </button>
                     </Link>
@@ -51,9 +54,7 @@ const FeaturedEvents = () => {
         {/* View All Events Button */}
         <div className="flex justify-center mt-10 pb-10">
           <Link to="/events">
-            <button
-              className="flex items-center cursor-pointer gap-2 bg-white text-black font-semibold border border-black px-4 py-2 hover:bg-gray-100 transition"
-            >
+            <button className="flex items-center cursor-pointer gap-2 border-gray-400 rounded-lg font-semibold border text-black px-4 py-2 hover:bg-gray-100 transition">
               View All Events <ArrowRight size={18} />
             </button>
           </Link>

@@ -2,7 +2,7 @@ import React from 'react'
 
 const EventsDetails = () => {
   return (
-    <div>EventsDetails</div>
+    <div>EventsDetailss</div>
   )
 }
 

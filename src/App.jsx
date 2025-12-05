@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './Pages/Home'
 import AllEvents from './Pages/AllEvents'
 import EventsDetails from './Pages/EventsDetails'
+import Footer from './Components/Footer'
 
 
 const App = () => {
@@ -17,6 +18,8 @@ const App = () => {
         <Route path="/events" element={<AllEvents/>} />
         <Route path="/events/:id" element={<EventsDetails/>} />
       </Routes>
+
+      <Footer/>
     </div>
   )
 }
