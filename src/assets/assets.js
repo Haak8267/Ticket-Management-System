@@ -87,57 +87,67 @@ export const hotelDummyData = {
 // Rooms Dummy Data
 export const eventsDummyData = [
   {
-    _id: " evenr1", // Unique ID
-    // roomType: "Double Bed",
+    _id: " event1", // Unique ID
+    eventType: "Conference",
     ticket: 399,
     amenities: ["Room Service", "Mountain View", "Pool Access"],
     images: [image1, image2, image3],
     isAvailable: true,
     name: "Special Events",
     address: "Main Road Street ",
+    checkIn: "2025/12/10",
+    checkOut: "2025/12/15",
   },
 
   {
     _id: "event2", // Unique ID
-    // roomType: "Double Bed",
+    eventType: "Conference",
     ticket: 350,
     amenities: ["Free WiFi", "Free Breakfast", "Room Service"],
     images: [image4, image5, image6],
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
+    checkIn: "2025/11/05",
+    checkOut: "2025/11/10",
   },
 
   {
     _id: " event3", // Unique ID
-    // roomType: "Single Bed",
+    eventType: "Conference",
     ticket: 250,
     amenities: ["Room Service", "Mountain View", "Pool Access"],
     images: [image7, image8, image9],
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street ",
+    checkIn: "2025/10/15",
+    checkOut: "2025/10/20",
   },
 
   {
     _id: "event4", // Unique ID
-    roomType: "Family suite",
+    eventType: "Conference",
     ticket: 400,
     amenities: ["Free WiFi", "Free Breakfast", "Room Service"],
     images: [image10, image11, image12],
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
+    checkIn: "2025/09/20",
+    checkOut: "2025/09/25",
   },
 
   {
-    _id: "room5", // Unique ID
-    roomType: "Family suite",
-    pricePerNight: 400,
-    ticket: ["Room Service", "Mountain View", "Pool Access"],
-    images: [image1, image4, image7],
+    _id: "event5", // Unique ID
+    eventType: "Conference",
+    ticket: 400,
+    amenities: ["Room Service", "Mountain View", "Pool Access"],
+    images: [image9, image4, image7],
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
+    checkIn: "2025/08/10",
+    checkOut: "2025/08/15",
   },
 ];
