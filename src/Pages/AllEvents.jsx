@@ -37,22 +37,18 @@ const AllEvents = () => {
                   </h2>
                         </div>
                   
-                  <div>
-                  <h2 className="text-xl font-semibold  text-black">
+                  {/* <div> */}
+                  <h2 className="text-sm text-black">
                     {event.checkIn}
                   </h2>
 
-                  <h2 className="text-xl font-semibold text-black">
-                     {event.checkOut}
-                  </h2>
-
-                  </div>
+                  {/* </div> */}
                     </div>
                   <p className="text-sm text-gray-600">{event.address}</p>
                   <p className="text-md pt-2 text-black">{event.eventType}</p>
 
                   <div className="flex justify-between items-center mt-4">
-                    <p className="text-gray-800">₵{event.ticket} / night</p>
+                    <p className="text-gray-800">₵{event.ticket}</p>
 
                     <Link to={`/events/${event._id}`}>
                       <button className="bg-red-500 cursor-pointer rounded-lg text-white font-semibold px-4 py-2 hover:bg-red-300 transition">

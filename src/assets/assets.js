@@ -95,8 +95,8 @@ export const eventsDummyData = [
     isAvailable: true,
     name: "Special Events",
     address: "Main Road Street ",
-    checkIn: "2025/12/10",
-    checkOut: "2025/12/15",
+    checkIn: "Wed Dec 03 2025",
+   
   },
 
   {
@@ -108,8 +108,8 @@ export const eventsDummyData = [
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
-    checkIn: "2025/11/05",
-    checkOut: "2025/11/10",
+    checkIn: "Wed Dec 03 2025",
+  
   },
 
   {
@@ -121,8 +121,8 @@ export const eventsDummyData = [
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street ",
-    checkIn: "2025/10/15",
-    checkOut: "2025/10/20",
+    checkIn: "Wed Dec 05 2025",
+   
   },
 
   {
@@ -134,8 +134,8 @@ export const eventsDummyData = [
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
-    checkIn: "2025/09/20",
-    checkOut: "2025/09/25",
+    checkIn: "Wed Dec 07 2025",
+   
   },
 
   {
@@ -147,7 +147,7 @@ export const eventsDummyData = [
     isAvailable: true,
     name: "Special Gardens",
     address: "Main Road Street",
-    checkIn: "2025/08/10",
-    checkOut: "2025/08/15",
+    checkIn: "Wed Dec 10 2025",
+   
   },
 ];
