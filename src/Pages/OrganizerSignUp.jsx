@@ -40,7 +40,7 @@ export default function OrganizerSignup() {
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
       <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
         {/* Left Section */}
-        <div className="bg-gradient-to-br from-slate-100 via-slate-200 to-pink-600 text-white p-12 flex flex-col justify-center">
+        <div className="bg-gradient-to-br from-slate-100 via-slate-200 to-slate-600 text-white p-12 flex flex-col justify-center">
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Eventix</h1>
             <div className="h-1 w-20 bg-white rounded"></div>
