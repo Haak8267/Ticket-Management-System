@@ -42,7 +42,7 @@ export default function OrganizerSignup() {
       await signup(formData.email, formData.password, formData.organizerName, 'organizer');
       toast.success('Account created successfully! Welcome to Eventix.');
       setTimeout(() => {
-        navigate('/events');
+        navigate('/newevents');
       }, 2000);
     } catch (error) {
       console.error('Signup error:', error);

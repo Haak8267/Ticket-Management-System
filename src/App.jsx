@@ -10,7 +10,9 @@ import Payments from "./Pages/Payments";
 import UserSignup from "./Pages/UserSignup";
 import OrganizerSignup from "./Pages/OrganizerSignUp";
 import SignIn from "./Pages/SignIn";
-import { AuthProvider } from "./firebase/AuthContext";
+import { AuthProvider } from "./firebase/Authcontext";
+import NewEvents from "./Pages/NewEvents";
+
 
 
 const App = () => {
@@ -35,6 +37,8 @@ const App = () => {
           <Route path="/signup" element={<UserSignup />} />
           <Route path="/osignup" element={<OrganizerSignup />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/newevents" element={<NewEvents />} />
+
         </Routes>
 
         {showFooter && <Footer />}
