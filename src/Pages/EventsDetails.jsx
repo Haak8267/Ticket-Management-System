@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { eventsDummyData, facilityIcons } from "../assets/assets";
+import { useAuth } from "../firebase/Authcontext";
+import { createBooking } from "../firebase/firestoreservice";
 
 const EventsDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const event = eventsDummyData.find((event) => event._id === id);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -16,7 +20,7 @@ const EventsDetails = () => {
   if (!event) {
     return (
       <div className="text-center py-20 px-4 sm:px-8 md:px-16 lg:px-24">
-        <p className="text-gray-500 text-lg">Room not found</p>
+        <p className="text-gray-500 text-lg">Event not found</p>
         <Link to="/events" className="text-blue-600 hover:underline">
           Back to All Events
         </Link>
@@ -24,33 +28,51 @@ const EventsDetails = () => {
     );
   }
 
- const handleBookNow = () => {
-  // No date validation, no check-in/out required
-  const bookingData = {
-    id: event._id, // Added id field for MyBookings
-    eventId: event._id,
-    name: event.name,
-    address: event.address,
-    city: event.city || "New York",
-    ticket: event.ticket,
-    total: event.ticket, // Added total field that MyBookings displays
-    eventType: event.eventType,
-    image: event.images[0],
-    date: event.checkIn, // Added date field using checkIn date
-    status: "Unpaid",
-    bookingDate: new Date().toISOString(),
+  const handleBookNow = async () => {
+    if (!currentUser) {
+      toast.error("Please sign in to book this event");
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1500);
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const bookingData = {
+        eventId: event._id,
+        name: event.name,
+        address: event.address,
+        city: event.city || "New York",
+        ticket: event.ticket,
+        total: event.ticket,
+        eventType: event.eventType,
+        image: event.images[0],
+        date: event.checkIn,
+        status: "Unpaid",
+        bookingDate: new Date().toISOString(),
+      };
+
+      const createdBooking = await createBooking(bookingData, currentUser.uid);
+      
+      toast.success("Event booked successfully!", {
+        duration: 4000,
+        position: "top-center",
+        icon: "✔️",
+      });
+
+      setTimeout(() => {
+        navigate("/my-bookings");
+      }, 2000);
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error("Failed to book event. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const existingEvents = JSON.parse(localStorage.getItem("bookings") || "[]");
-  existingEvents.push(bookingData);
-  localStorage.setItem("bookings", JSON.stringify(existingEvents));
-
-  toast.success("Room added to your bookings!", {
-    duration: 4000,
-    position: "top-center",
-    icon: "✔️",
-  });
-};
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-24 pt-28 pb-20">
       <Toaster />
@@ -112,7 +134,7 @@ const EventsDetails = () => {
         </div>
       </div>
 
-      {/* UI DATE SECTION (kept exactly the same) */}
+      {/* Date Section */}
       <div className="mt-6 flex flex-wrap gap-4 items-end">
         <div className="flex justify-between items-center">
           <div>
@@ -124,9 +146,10 @@ const EventsDetails = () => {
 
         <button
           onClick={handleBookNow}
-          className="bg-red-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-red-300 transition"
+          disabled={loading}
+          className="bg-red-500 cursor-pointer text-white px-6 py-2 rounded hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Book Now
+          {loading ? "Booking..." : "Book Now"}
         </button>
       </div>
 

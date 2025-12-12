@@ -10,6 +10,7 @@ import Payments from "./Pages/Payments";
 import UserSignup from "./Pages/UserSignup";
 import OrganizerSignup from "./Pages/OrganizerSignUp";
 import SignIn from "./Pages/SignIn";
+import { AuthProvider } from "./firebase/AuthContext";
 
 
 const App = () => {
@@ -18,24 +19,27 @@ const App = () => {
   // Show Navbar only on home page
   const showNavbar = location.pathname === "/";
 
-  // Show Footer on all pages except home page
+  // Show Footer on home page
   const showFooter = location.pathname === "/";
+  
   return (
-    <div>
-      {showFooter && <Navbar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/events" element={<AllEvents />} />
-        <Route path="/events/:id" element={<EventsDetails />} />
-        <Route path="/my-bookings" element={<MyBookings />} />
-        <Route path="/payment" element={<Payments />} />
-        <Route path="/signup" element={<UserSignup />} />
-        <Route path="/osignup" element={<OrganizerSignup />} />
-        <Route path="/signin" element={<SignIn />} />
-      </Routes>
+    <AuthProvider>
+      <div>
+        {showFooter && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/events" element={<AllEvents />} />
+          <Route path="/events/:id" element={<EventsDetails />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/payment" element={<Payments />} />
+          <Route path="/signup" element={<UserSignup />} />
+          <Route path="/osignup" element={<OrganizerSignup />} />
+          <Route path="/signin" element={<SignIn />} />
+        </Routes>
 
-      {showFooter && <Footer />}
-    </div>
+        {showFooter && <Footer />}
+      </div>
+    </AuthProvider>
   );
 };
 

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Check } from 'lucide-react';
+import { useAuth } from '../firebase/Authcontext';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function OrganizerSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isRobot, setIsRobot] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     organizerName: '',
     phone: '',
@@ -12,21 +16,48 @@ export default function OrganizerSignup() {
     password: ''
   });
 
-  const handleSubmit = () => {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
     if (!isRobot) {
-      alert('Please verify that you are not a robot');
+      toast.error('Please verify that you are not a robot');
       return;
     }
     if (!agreeTerms) {
-      alert('Please agree to the Terms of Service and Privacy Policy');
+      toast.error('Please agree to the Terms of Service and Privacy Policy');
       return;
     }
     if (!formData.organizerName || !formData.phone || !formData.email || !formData.password) {
-      alert('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
-    alert('Account created successfully! Welcome to Eventix.');
-    console.log('Signup data:', formData);
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signup(formData.email, formData.password, formData.organizerName, 'organizer');
+      toast.success('Account created successfully! Welcome to Eventix.');
+      setTimeout(() => {
+        navigate('/events');
+      }, 2000);
+    } catch (error) {
+      console.error('Signup error:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        toast.error('This email is already registered');
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Invalid email format');
+      } else if (error.code === 'auth/weak-password') {
+        toast.error('Password is too weak');
+      } else {
+        toast.error('Failed to create account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -38,6 +69,8 @@ export default function OrganizerSignup() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+      <Toaster position="top-center" />
+      
       <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
         {/* Left Section */}
         <div className="bg-gradient-to-br from-slate-100 via-slate-200 to-pink-600 text-white p-12 flex flex-col justify-center">
@@ -130,6 +163,7 @@ export default function OrganizerSignup() {
                 value={formData.organizerName}
                 onChange={(e) => handleChange('organizerName', e.target.value)}
                 placeholder="e.g., Accra Art District"
+                disabled={loading}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               />
             </div>
@@ -143,6 +177,7 @@ export default function OrganizerSignup() {
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="054 000 0000"
+                disabled={loading}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               />
             </div>
@@ -156,6 +191,7 @@ export default function OrganizerSignup() {
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="you@company.com"
+                disabled={loading}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               />
             </div>
@@ -170,6 +206,7 @@ export default function OrganizerSignup() {
                   value={formData.password}
                   onChange={(e) => handleChange('password', e.target.value)}
                   placeholder="••••••••"
+                  disabled={loading}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                 />
                 <button
@@ -189,6 +226,7 @@ export default function OrganizerSignup() {
                 id="recaptcha"
                 checked={isRobot}
                 onChange={(e) => setIsRobot(e.target.checked)}
+                disabled={loading}
                 className="w-5 h-5 mt-0.5 accent-red-600 cursor-pointer"
               />
               <label htmlFor="recaptcha" className="text-sm text-gray-700 cursor-pointer select-none">
@@ -203,6 +241,7 @@ export default function OrganizerSignup() {
                 id="terms"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
+                disabled={loading}
                 className="w-5 h-5 mt-0.5 accent-red-600 cursor-pointer"
               />
               <label htmlFor="terms" className="text-sm text-gray-700 cursor-pointer select-none">
@@ -215,14 +254,15 @@ export default function OrganizerSignup() {
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
             >
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
 
             <p className="text-center text-sm text-gray-600 mt-6">
               Already have an account?{' '}
-              <a href="#" className="text-red-600 font-semibold hover:underline">Sign In</a>
+              <Link to="/signin" className="text-red-600 font-semibold hover:underline">Sign In</Link>
             </p>
           </div>
         </div>

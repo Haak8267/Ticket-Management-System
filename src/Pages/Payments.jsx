@@ -1,17 +1,28 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-import { FaMobileAlt } from "react-icons/fa"; // React Icons
+import { FaMobileAlt } from "react-icons/fa";
+import { useAuth } from "../firebase/Authcontext";
+import { updateBooking, createPayment } from "../firebase/firestoreservice";
 
 const Payments = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const { booking } = location.state || {};
 
   const [momoNumber, setMomoNumber] = useState("");
   const [momoName, setMomoName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(currentUser?.email || "");
   const [processing, setProcessing] = useState(false);
+
+  if (!currentUser) {
+    toast.error("Please sign in to make a payment");
+    setTimeout(() => {
+      navigate("/signin");
+    }, 1500);
+    return null;
+  }
 
   if (!booking) {
     return (
@@ -50,29 +61,32 @@ const Payments = () => {
     return true;
   };
 
-  const handleMomoPayment = () => {
+  const handleMomoPayment = async () => {
     if (!validateMomoPayment()) return;
 
     setProcessing(true);
 
-    // Simulate payment
-    setTimeout(() => {
-      const allBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-      const updatedBookings = allBookings.map((b) => {
-        if (
-          b.id === booking.id &&
-          b.date === booking.date
-        ) {
-          return {
-            ...b,
-            status: "Paid",
-            paymentMethod: "Mobile Money",
-            paymentDate: new Date().toISOString(),
-          };
-        }
-        return b;
+    try {
+      // Create payment record
+      const paymentData = {
+        bookingId: booking.id,
+        amount: booking.total,
+        paymentMethod: "Mobile Money",
+        momoNumber: momoNumber,
+        momoName: momoName,
+        email: email,
+        status: "Paid",
+        transactionDate: new Date().toISOString()
+      };
+
+      await createPayment(paymentData, currentUser.uid);
+
+      // Update booking status
+      await updateBooking(booking.id, {
+        status: "Paid",
+        paymentMethod: "Mobile Money",
+        paymentDate: new Date().toISOString(),
       });
-      localStorage.setItem("bookings", JSON.stringify(updatedBookings));
 
       toast.success("Payment successful!", {
         duration: 3000,
@@ -80,9 +94,12 @@ const Payments = () => {
       });
 
       setTimeout(() => navigate("/my-bookings"), 2000);
-
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Payment failed. Please try again.");
+    } finally {
       setProcessing(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -118,6 +135,7 @@ const Payments = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@gmail.com"
+              disabled={processing}
               className="w-full px-4 py-3 border border-black rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
             />
           </div>
@@ -132,6 +150,7 @@ const Payments = () => {
               value={momoNumber}
               onChange={handleMomoNumberChange}
               placeholder="0XX XXX XXXX"
+              disabled={processing}
               className="w-full px-4 py-3 border border-black rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -149,6 +168,7 @@ const Payments = () => {
               value={momoName}
               onChange={(e) => setMomoName(e.target.value)}
               placeholder="Full name on account"
+              disabled={processing}
               className="w-full px-4 py-3 border border-black rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none"
             />
           </div>
@@ -186,8 +206,8 @@ const Payments = () => {
           <div className="space-y-3">
             <div>
               <h3 className="font-semibold text-lg">{booking.name}</h3>
-              {booking.roomType && (
-                <p className="text-gray-600 text-sm">{booking.roomType}</p>
+              {booking.eventType && (
+                <p className="text-gray-600 text-sm">{booking.eventType}</p>
               )}
             </div>
 
@@ -218,7 +238,7 @@ const Payments = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Event Date:</span>
                 <span className="font-medium">
-                  {new Date(booking.date).toDateString()}
+                  {booking.date ? new Date(booking.date).toDateString() : 'N/A'}
                 </span>
               </div>
             </div>

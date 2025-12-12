@@ -1,43 +1,67 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../firebase/Authcontext";
+import { getUserBookings, deleteBooking } from "../firebase/firestoreservice";
+import toast, { Toaster } from "react-hot-toast";
 
 const MyBookings = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { currentUser } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedBookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-    setBookings(savedBookings);
-
-    if (location.state) {
-      setBookings((prevBookings) => {
-        const isDuplicate = prevBookings.some(
-          (booking) =>
-            booking.id === location.state.id &&
-            booking.date === location.state.date
-        );
-
-        if (!isDuplicate) {
-          return [...prevBookings, location.state];
-        }
-        return prevBookings;
-      });
-
-      window.history.replaceState({}, document.title);
+    if (!currentUser) {
+      toast.error("Please sign in to view your bookings");
+      navigate("/signin");
+      return;
     }
-  }, [location.state]);
 
-  const handleDeleteBooking = (indexToDelete) => {
-    setBookings((prevBookings) => {
-      const updatedBookings = prevBookings.filter((_, index) => index !== indexToDelete);
-      localStorage.setItem("bookings", JSON.stringify(updatedBookings));
-      return updatedBookings;
-    });
+    loadBookings();
+  }, [currentUser, navigate]);
+
+  const loadBookings = async () => {
+    try {
+      setLoading(true);
+      const userBookings = await getUserBookings(currentUser.uid);
+      setBookings(userBookings);
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+      toast.error("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to delete this booking?")) {
+      return;
+    }
+
+    try {
+      await deleteBooking(bookingId);
+      setBookings(bookings.filter(booking => booking.id !== bookingId));
+      toast.success("Booking deleted successfully");
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      toast.error("Failed to delete booking");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-24 pt-28 pb-20 space-y-8">
+      <Toaster />
       
       {/* Back Button */}
       <button
@@ -55,7 +79,15 @@ const MyBookings = () => {
       </div>
 
       {bookings.length === 0 ? (
-        <p className="text-gray-500 text-lg mt-10 text-center">No bookings yet</p>
+        <div className="text-center py-20">
+          <p className="text-gray-500 text-lg">No bookings yet</p>
+          <Link
+            to="/events"
+            className="inline-block mt-4 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+          >
+            Browse Events
+          </Link>
+        </div>
       ) : (
         <div className="space-y-6">
           
@@ -67,9 +99,9 @@ const MyBookings = () => {
             <p>Actions</p>
           </div>
 
-          {bookings.map((booking, index) => (
+          {bookings.map((booking) => (
             <div
-              key={index}
+              key={booking.id}
               className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_0.5fr] gap-4 items-center border-b border-gray-200 pb-6"
             >
               
@@ -83,8 +115,8 @@ const MyBookings = () => {
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">
                     {booking.name}{" "}
-                    {booking.roomType && (
-                      <span className="text-gray-500 text-sm">({booking.roomType})</span>
+                    {booking.eventType && (
+                      <span className="text-gray-500 text-sm">({booking.eventType})</span>
                     )}
                   </h3>
 
@@ -100,7 +132,12 @@ const MyBookings = () => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
                       />
                     </svg>
                     {booking.address}
@@ -114,7 +151,7 @@ const MyBookings = () => {
               <div className="text-gray-700 text-sm space-y-1">
                 <p>
                   <span className="text-gray-600 font-medium">Event Date:</span>{" "}
-                  {new Date(booking.date).toDateString()}
+                  {booking.date ? new Date(booking.date).toDateString() : 'N/A'}
                 </p>
               </div>
 
@@ -147,7 +184,7 @@ const MyBookings = () => {
               {/* Delete Button */}
               <div>
                 <button
-                  onClick={() => handleDeleteBooking(index)}
+                  onClick={() => handleDeleteBooking(booking.id)}
                   className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
                 >
                   Delete
