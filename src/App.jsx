@@ -7,6 +7,10 @@ import EventsDetails from "./Pages/EventsDetails";
 import Footer from "./Components/Footer";
 import MyBookings from "./Pages/MyBookings";
 import Payments from "./Pages/Payments";
+import UserSignup from "./Pages/UserSignup";
+import OrganizerSignup from "./Pages/OrganizerSignUp";
+import SignIn from "./Pages/SignIn";
+
 
 const App = () => {
   const location = useLocation();
@@ -25,6 +29,9 @@ const App = () => {
         <Route path="/events/:id" element={<EventsDetails />} />
         <Route path="/my-bookings" element={<MyBookings />} />
         <Route path="/payment" element={<Payments />} />
+        <Route path="/signup" element={<UserSignup />} />
+        <Route path="/osignup" element={<OrganizerSignup />} />
+        <Route path="/signin" element={<SignIn />} />
       </Routes>
 
       {showFooter && <Footer />}
