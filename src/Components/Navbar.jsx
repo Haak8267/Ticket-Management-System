@@ -6,6 +6,8 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
 
+  const [isSignupDropdownOpen, setIsSignupDropdownOpen] = React.useState(false);
+
   const navLinks = [
     { name: 'Discover', path: '#' },
     { name: 'Find Events', path: '#' },
@@ -17,8 +19,9 @@ const Navbar = () => {
   ];
 
   // Define the sign-in and sign-up paths for clean use
-  const SIGN_IN_PATH = '/signin';
-  const SIGN_UP_PATH = '/signup';
+const SIGN_IN_PATH = '/signin';
+const USER_SIGNUP_PATH = '/signup';    
+const ORGANIZER_SIGNUP_PATH = '/osignup'; 
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -29,11 +32,18 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
- const handleMobileLinkClick = () => {
-      // Closes the menu when a link is clicked
-      setIsMenuOpen(false);
+const handleMobileLinkClick = () => {
+    setIsMenuOpen(false);
+    // Ensure dropdown state is also reset when mobile menu closes
+    setIsSignupDropdownOpen(false);
   };
 
+
+  // New handler to toggle dropdown and close mobile menu if open
+  const toggleDropdown = () => {
+    setIsSignupDropdownOpen(!isSignupDropdownOpen);
+  };
+  
   return (
     <div className="">
       {/* Sticky Top Header */}
@@ -60,22 +70,53 @@ const Navbar = () => {
 
           {/* Right Side */}
           <div className="hidden md:flex items-center gap-4">
-            {/* 1. DESKTOP SIGN IN - Changed <button> to <Link> and added 'to' prop */}
+            {/* DESKTOP SIGN IN */}
             <Link 
-              to={SIGN_IN_PATH} // LINKED HERE
+              to={SIGN_IN_PATH} 
               className="text-gray-700 text-sm font-medium hover:text-gray-900"
             >
               Sign In
             </Link>
             
-            {/* 2. DESKTOP SIGN UP - Changed <button> to <Link> and added 'to' prop */}
-            <Link 
-              to={SIGN_UP_PATH} // LINKED HERE
-              className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
-            >
-              Sign up
-              <ChevronDown className="w-4 h-4" />
-            </Link>
+            {/* 2. DESKTOP SIGN UP DROPDOWN CONTAINER */}
+            <div className="relative">
+              <button 
+                onClick={toggleDropdown}
+                className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+              >
+                Sign up
+                <ChevronDown className={`w-4 h-4 transition-transform ${isSignupDropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
+              </button>
+
+              {/* DROPDOWN MENU */}
+              {isSignupDropdownOpen && (
+                <div 
+                  className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  onBlur={() => setIsSignupDropdownOpen(false)} // Close dropdown when clicking outside (requires div to be focusable)
+                  tabIndex="-1" 
+                >
+                  <div className="py-1">
+                    {/* USER SIGNUP LINK */}
+                    <Link
+                      to={USER_SIGNUP_PATH}
+                      onClick={() => setIsSignupDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign up as User
+                    </Link>
+                    {/* ORGANIZER SIGNUP LINK */}
+                    <Link
+                      to={ORGANIZER_SIGNUP_PATH}
+                      onClick={() => setIsSignupDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign up as Organizer
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* END DESKTOP SIGN UP DROPDOWN */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -143,22 +184,34 @@ const Navbar = () => {
             ))}
             <div className="border-t border-gray-200 pt-4 mt-4 flex flex-col gap-3">
                 
-              {/* 3. MOBILE SIGN IN - Changed <button> to <Link> and added 'to' prop */}
+              {/* MOBILE SIGN IN */}
               <Link 
-                to={SIGN_IN_PATH} // LINKED HERE
+                to={SIGN_IN_PATH} 
                 onClick={handleMobileLinkClick} 
                 className="text-gray-700 text-base font-medium py-2 text-left"
               >
                 Sign In
               </Link>
               
-              {/* 4. MOBILE SIGN UP - Changed <button> to <Link> and added 'to' prop */}
+              {/* 4. MOBILE SIGN UP - Change to two links */}
+              <p className="text-gray-900 text-base font-bold pt-2">Sign up as:</p>
+              
+              {/* MOBILE USER SIGNUP */}
               <Link 
-                to={SIGN_UP_PATH} // LINKED HERE
+                to={USER_SIGNUP_PATH} 
+                onClick={handleMobileLinkClick}
+                className="bg-blue-500 text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-blue-600 transition-colors text-center"
+              >
+                User
+              </Link>
+              
+              {/* MOBILE ORGANIZER SIGNUP */}
+              <Link 
+                to={ORGANIZER_SIGNUP_PATH} 
                 onClick={handleMobileLinkClick}
                 className="bg-black text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-gray-800 transition-colors text-center"
               >
-                Sign up
+                Organizer
               </Link>
             </div>
           </div>
