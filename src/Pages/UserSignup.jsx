@@ -1,26 +1,57 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Check, Facebook } from 'lucide-react';
+import { useAuth } from '../firebase/Authcontext';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function UserSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [isRobot, setIsRobot] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     phone: '',
     email: '',
     password: ''
   });
 
-  const handleSubmit = () => {
+  const { signup, signInWithGoogle, signInWithFacebook } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async () => {
     if (!isRobot) {
-      alert('Please verify that you are not a robot');
+      toast.error('Please verify that you are not a robot');
       return;
     }
     if (!formData.phone || !formData.email || !formData.password) {
-      alert('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
-    alert('Account created successfully! Welcome to Eventix.');
-    console.log('Signup data:', formData);
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signup(formData.email, formData.password, formData.phone, 'user');
+      toast.success('Account created successfully! Welcome to Eventix.');
+      setTimeout(() => {
+        navigate('/events');
+      }, 2000);
+    } catch (error) {
+      console.error('Signup error:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        toast.error('This email is already registered');
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Invalid email format');
+      } else if (error.code === 'auth/weak-password') {
+        toast.error('Password is too weak');
+      } else {
+        toast.error('Failed to create account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -30,8 +61,42 @@ export default function UserSignup() {
     });
   };
 
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+      toast.success('Account created successfully with Google!');
+      setTimeout(() => {
+        navigate('/events');
+      }, 1000);
+    } catch (error) {
+      console.error('Google signup error:', error);
+      toast.error('Failed to sign up with Google');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookSignup = async () => {
+    setLoading(true);
+    try {
+      await signInWithFacebook();
+      toast.success('Account created successfully with Facebook!');
+      setTimeout(() => {
+        navigate('/events');
+      }, 1000);
+    } catch (error) {
+      console.error('Facebook signup error:', error);
+      toast.error('Failed to sign up with Facebook');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+      <Toaster position="top-center" />
+      
       <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2">
         {/* Left Section */}
         <div className="bg-gradient-to-br from-slate-200 via-slate-100 to-pink-600 text-white p-12 flex flex-col justify-center">
@@ -115,11 +180,19 @@ export default function UserSignup() {
 
           {/* Social Buttons */}
           <div className="space-y-3 mb-6">
-            <button className="w-full flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
+            <button
+              onClick={handleFacebookSignup}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 disabled:opacity-50"
+            >
               <Facebook className="w-5 h-5 text-blue-600" />
               <span className="font-medium text-gray-700">Continue with Facebook</span>
             </button>
-            <button className="w-full flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-200 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all duration-200">
+            <button
+              onClick={handleGoogleSignup}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 border-2 border-gray-200 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all duration-200 disabled:opacity-50"
+            >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#4285F4" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -147,6 +220,7 @@ export default function UserSignup() {
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="054 000 0000"
+                disabled={loading}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               />
             </div>
@@ -160,6 +234,7 @@ export default function UserSignup() {
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="you@example.com"
+                disabled={loading}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
               />
             </div>
@@ -174,6 +249,7 @@ export default function UserSignup() {
                   value={formData.password}
                   onChange={(e) => handleChange('password', e.target.value)}
                   placeholder="••••••••"
+                  disabled={loading}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                 />
                 <button
@@ -193,6 +269,7 @@ export default function UserSignup() {
                 id="recaptcha"
                 checked={isRobot}
                 onChange={(e) => setIsRobot(e.target.checked)}
+                disabled={loading}
                 className="w-5 h-5 mt-0.5 accent-red-600 cursor-pointer"
               />
               <label htmlFor="recaptcha" className="text-sm text-gray-700 cursor-pointer select-none">
@@ -202,9 +279,10 @@ export default function UserSignup() {
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
             >
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
 
             <p className="text-center text-xs text-gray-500 mt-4">
@@ -216,7 +294,7 @@ export default function UserSignup() {
 
             <p className="text-center text-sm text-gray-600 mt-6">
               Already have an account?{' '}
-              <a href="#" className="text-red-600 font-semibold hover:underline">Sign In</a>
+              <Link to="/signin" className="text-red-600 font-semibold hover:underline">Sign In</Link>
             </p>
           </div>
         </div>
