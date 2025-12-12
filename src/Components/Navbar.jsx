@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, Menu, X, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -15,6 +16,10 @@ const Navbar = () => {
     { name: 'Partner Program', path: '#' },
   ];
 
+  // Define the sign-in and sign-up paths for clean use
+  const SIGN_IN_PATH = '/signin';
+  const SIGN_UP_PATH = '/signup';
+
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -23,6 +28,11 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+ const handleMobileLinkClick = () => {
+      // Closes the menu when a link is clicked
+      setIsMenuOpen(false);
+  };
 
   return (
     <div className="">
@@ -50,13 +60,22 @@ const Navbar = () => {
 
           {/* Right Side */}
           <div className="hidden md:flex items-center gap-4">
-            <button className="text-gray-700 text-sm font-medium hover:text-gray-900">
+            {/* 1. DESKTOP SIGN IN - Changed <button> to <Link> and added 'to' prop */}
+            <Link 
+              to={SIGN_IN_PATH} // LINKED HERE
+              className="text-gray-700 text-sm font-medium hover:text-gray-900"
+            >
               Sign In
-            </button>
-            <button className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+            </Link>
+            
+            {/* 2. DESKTOP SIGN UP - Changed <button> to <Link> and added 'to' prop */}
+            <Link 
+              to={SIGN_UP_PATH} // LINKED HERE
+              className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+            >
               Sign up
               <ChevronDown className="w-4 h-4" />
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,22 +132,34 @@ const Navbar = () => {
           {/* Mobile Menu Links */}
           <div className="flex flex-col p-4 gap-4">
             {navLinks.map((link, i) => (
-              <a
+              <Link // Changed <a> to <Link>
                 key={i}
-                href={link.path}
-                onClick={() => setIsMenuOpen(false)}
+                to={link.path} // LINKED HERE
+                onClick={handleMobileLinkClick} 
                 className="text-gray-700 text-base font-medium py-2 hover:text-black transition-colors"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
             <div className="border-t border-gray-200 pt-4 mt-4 flex flex-col gap-3">
-              <button className="text-gray-700 text-base font-medium py-2 text-left">
+                
+              {/* 3. MOBILE SIGN IN - Changed <button> to <Link> and added 'to' prop */}
+              <Link 
+                to={SIGN_IN_PATH} // LINKED HERE
+                onClick={handleMobileLinkClick} 
+                className="text-gray-700 text-base font-medium py-2 text-left"
+              >
                 Sign In
-              </button>
-              <button className="bg-black text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-gray-800 transition-colors">
+              </Link>
+              
+              {/* 4. MOBILE SIGN UP - Changed <button> to <Link> and added 'to' prop */}
+              <Link 
+                to={SIGN_UP_PATH} // LINKED HERE
+                onClick={handleMobileLinkClick}
+                className="bg-black text-white px-5 py-3 rounded-lg text-base font-medium hover:bg-gray-800 transition-colors text-center"
+              >
                 Sign up
-              </button>
+              </Link>
             </div>
           </div>
         </div>
